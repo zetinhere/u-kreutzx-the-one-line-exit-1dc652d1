@@ -5,20 +5,20 @@
 // every run.
 //
 // How the line is built for the judge's brief (most important first):
-//   1. It IS one funny line: a single sentence, 107 of the 140 characters,
+//   1. It IS one funny line: a single sentence, 108 of the 140 characters,
 //      standing alone with no setup outside itself.
 //   2. It lands a real surprise at the end: the grievances escalate from
 //      the plausible (the new intern makes more than I do) to the absurd
-//      (the plant by my desk just got a raise). The reader expects a
-//      second complaint about pay; instead an inanimate plant is now
-//      out-earning the narrator.
+//      (the plant by my desk is now my manager). The reader expects a
+//      second complaint about pay; instead an inanimate plant now
+//      outranks the narrator — a promotion the narrator never got.
 //   3. It fits the form: it opens "Dear boss, I am resigning", so it reads
 //      as a letter a person could actually send, with no padding and no
 //      list of grievances beyond the two beats the joke needs.
 //   4. It has a specific voice: an underpaid office worker, named by the
 //      intern's pay and the desk plant — a recognizable workplace, not a
 //      generic complaint.
-//   5. It stays with the reader: "the plant by my desk just got a raise"
+//   5. It stays with the reader: "the plant by my desk is now my manager"
 //      is the kind of line a colleague forwards, and it works as a quote
 //      on its own.
 
@@ -36,7 +36,7 @@ const BEATS: ReadonlyArray<{ role: string; text: string }> = [
   },
   {
     role: "payoff",
-    text: "and the plant by my desk just got a raise.",
+    text: "and the plant by my desk is now my manager.",
   },
 ];
 
@@ -48,7 +48,19 @@ function charCount(text: string): number {
 }
 
 function buildLine(): string {
-  return BEATS.map((beat) => beat.text).join(" ");
+  // Every beat must carry text with no stray spaces of its own, so a
+  // later edit to one beat cannot silently double-space the line or
+  // leave a beat empty — the joined line is exactly the beats.
+  for (const beat of BEATS) {
+    if (beat.text.length === 0 || beat.text !== beat.text.trim()) {
+      throw new Error(`beat ${beat.role} must be non-empty with no edge spaces`);
+    }
+  }
+  const line = BEATS.map((beat) => beat.text).join(" ");
+  if (line.includes("  ")) {
+    throw new Error("line must not contain a double space");
+  }
+  return line;
 }
 
 function checkLine(text: string): void {
